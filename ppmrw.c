@@ -165,11 +165,15 @@ if (strcmp("P3", m_n) == 0){
 
 //Writing the pixels to output file
 FILE* out = fopen(argv[3], "w");
-fprintf(out, "%s",hbuff);
+fprintf(out, "%s", hbuff);
 if(*argv[1] == '3'){
   for(int rows = 0; rows < iheight; rows++){
     for(int cols = 0; cols < iwidth; cols++){
-      fprintf(out, "%i %i %i\n",img_arr[rows][cols].red, img_arr[rows][cols].grn, img_arr[rows][cols].blu);
+
+      int r = img_arr[rows][cols].red;
+      int g = img_arr[rows][cols].grn;
+      int b = img_arr[rows][cols].blu;
+      fprintf(out, " %i %i %i \n", r, g, b);
     }
   }
 } else{
@@ -179,8 +183,8 @@ if(*argv[1] == '3'){
       int gpx[1] = {img_arr[rows][cols].grn};
       int bpx[1] = {img_arr[rows][cols].blu};
       fwrite(rpx, 1, 1, out);
-      fwrite(rpx, 1, 1, out);
-      fwrite(rpx, 1, 1, out);
+      fwrite(gpx, 1, 1, out);
+      fwrite(bpx, 1, 1, out);
     }
   }
 }
