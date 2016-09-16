@@ -52,7 +52,7 @@ while (pass == '#'){
 }
 
 //gets the file width
-char width[10];
+char width[10] = {'\0'};
 int iterator = 0;
 while(pass != ' '){
   width[iterator++] = pass;
@@ -64,7 +64,7 @@ int iwidth = atoi(width);
 sscanf(width, "%d", &iwidth);
 
 //gets file height
-char height[10];
+char height[10] = {'\0'};
 iterator = 0;
 while(pass != '\n'){
   height[iterator++] = pass;
@@ -75,7 +75,7 @@ sscanf(height, "%d", &iheight);
 
 //gets chanel size
 pass = fgetc(fhin);
-char channel[4];
+char channel[4] = {'\0'};
 iterator = 0;
 while(pass != '\n'){
   channel[iterator++] = pass;
@@ -107,6 +107,7 @@ while(line_num != 0) {
 
 hbuff[1] = *argv[1];
 fprintf(stdout, "%s\n", hbuff); //print out header
+ungetc(pass, fhin);
 
 //Reading pixel data
 Pixel img_arr[iheight][iwidth];
@@ -148,7 +149,7 @@ if (strcmp("P3", m_n) == 0){
   }
 } else{
   for(int rows = 0; rows < iheight; rows++){
-    for(int cols = 0; cols < iwidth; cols ++){
+    for(int cols = 0; cols < iwidth; cols++){
       int rpx[1];
       int gpx[1];
       int bpx[1];
@@ -164,16 +165,27 @@ if (strcmp("P3", m_n) == 0){
 
 //Writing the pixels to output file
 FILE* out = fopen(argv[3], "w");
-fprintf(out, "%s\n",hbuff);
+fprintf(out, "%s",hbuff);
 if(*argv[1] == '3'){
   for(int rows = 0; rows < iheight; rows++){
     for(int cols = 0; cols < iwidth; cols++){
       fprintf(out, "%i %i %i\n",img_arr[rows][cols].red, img_arr[rows][cols].grn, img_arr[rows][cols].blu);
     }
   }
+} else{
+  for (int rows = 0; rows < iheight; rows++){
+    for (int cols = 0; cols < iwidth; cols++){
+      int rpx[1] = {img_arr[rows][cols].red};
+      int gpx[1] = {img_arr[rows][cols].grn};
+      int bpx[1] = {img_arr[rows][cols].blu};
+      fwrite(rpx, 1, 1, out);
+      fwrite(rpx, 1, 1, out);
+      fwrite(rpx, 1, 1, out);
+    }
+  }
 }
 fclose(fhin);
 fclose(out);
 fflush(stdout);
-  return 0;
+return 0;
 }
