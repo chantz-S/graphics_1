@@ -6,7 +6,7 @@
 
 //Make struct outside of functions for global use
 typedef struct Pixel{
-  unsigned int r, g ,b;
+  unsigned int red, grn ,blu;
 }Pixel;
 
 int main(int argc, char const *argv[]) {
@@ -146,8 +146,34 @@ if (strcmp("P3", m_n) == 0){
 
     }
   }
+} else{
+  for(int rows = 0; rows < iheight; rows++){
+    for(int cols = 0; cols < iwidth; cols ++){
+      int rpx[1];
+      int gpx[1];
+      int bpx[1];
+      fread(rpx, 1, 1, fhin);
+      fread(gpx, 1, 1, fhin);
+      fread(bpx, 1, 1, fhin);
+      img_arr[rows][cols].red = rpx[0];
+      img_arr[rows][cols].grn = gpx[0];
+      img_arr[rows][cols].blu = bpx[0];
+    }
+  }
 }
 
+//Writing the pixels to output file
+FILE* out = fopen(argv[3], "w");
+fprintf(out, "%s\n",hbuff);
+if(*argv[1] == '3'){
+  for(int rows = 0; rows < iheight; rows++){
+    for(int cols = 0; cols < iwidth; cols++){
+      fprintf(out, "%i %i %i\n",img_arr[rows][cols].red, img_arr[rows][cols].grn, img_arr[rows][cols].blu);
+    }
+  }
+}
+fclose(fhin);
+fclose(out);
 fflush(stdout);
   return 0;
 }
