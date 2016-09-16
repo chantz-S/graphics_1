@@ -42,7 +42,6 @@ if(strcmp("P3", m_n) !=0 && strcmp("P6", m_n) !=0){
 //passes to next needed line or char
 char pass = fgetc(fhin);
 pass = fgetc(fhin);
-fprintf(stdout, "%c\n", pass);
 
 char ar[1000];
 int comments = 0;
@@ -62,7 +61,7 @@ while(pass != ' '){
 
 
 int iwidth = atoi(width);
-fprintf(stdout, "%i", iwidth );
+sscanf(width, "%d", &iwidth);
 
 //gets file height
 char height[10];
@@ -72,7 +71,7 @@ while(pass != '\n'){
   pass = fgetc(fhin);
 }
 int iheight = atoi(height);
-fprintf(stdout, " %i\n", iheight );
+sscanf(height, "%d", &iheight);
 
 //gets chanel size
 pass = fgetc(fhin);
@@ -84,7 +83,7 @@ while(pass != '\n'){
 }
 // scans the channel size to make sure its 255
 int channel_int;
-sscanf(channel, "%d" &channel_int);
+sscanf(channel, "%d", &channel_int);
 if(channel_int != 255){
   fprintf(stderr, "Files channel size must be 255");
   fclose(fhin);
@@ -93,7 +92,7 @@ if(channel_int != 255){
 
 //now that header has been checked need to rewind to read everything in
 rewind(fhin);
-char hbuff[5000] = {'\0'}
+char hbuff[5000] = {'\0'};
 pass = fgetc(fhin);
 int counter = 0; // determine pos
 int line_num = 3 + comments; // determine line number program is on
@@ -109,7 +108,45 @@ while(line_num != 0) {
 hbuff[1] = *argv[1];
 fprintf(stdout, "%s\n", hbuff); //print out header
 
+//Reading pixel data
+Pixel img_arr[iheight][iwidth];
+if (strcmp("P3", m_n) == 0){
+  for(int rows = 0; rows < iheight; rows++){
+    for(int cols = 0; cols < iwidth; cols++){
+      char red[4] = {'\0'};
+      char grn[4] = {'\0'};
+      char blu[4] = {'\0'};
+      pass = fgetc(fhin);
+      for(int x = 0; x < 3; x++){
+        if (pass == ' ' || pass == '\n'){break;}
+        red[x] = pass;
+        pass = fgetc(fhin);
+      }
+      while (pass == ' ' || pass == '\n') {pass = fgetc(fhin);}
 
+      for(int x = 0; x < 3; x++){
+        if (pass == ' ' || pass == '\n'){break;}
+        grn[x] = pass;
+        pass = fgetc(fhin);
+      }
+      while (pass == ' ' || pass == '\n') {pass = fgetc(fhin);}
+
+      for(int x = 0; x < 3; x++){
+        if (pass == ' ' || pass == '\n'){break;}
+        blu[x] = pass;
+        pass = fgetc(fhin);
+      }
+      while (pass == ' ' || pass == '\n') {pass = fgetc(fhin);}
+
+      ungetc(pass, fhin);
+
+      img_arr[rows][cols].red = atoi(red);
+      img_arr[rows][cols].grn = atoi(grn);
+      img_arr[rows][cols].blu = atoi(blu);
+
+    }
+  }
+}
 
 fflush(stdout);
   return 0;
