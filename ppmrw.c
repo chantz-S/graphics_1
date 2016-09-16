@@ -43,6 +43,7 @@ if(strcmp("P3", m_n) !=0 && strcmp("P6", m_n) !=0){
 char pass = fgetc(fhin);
 pass = fgetc(fhin);
 
+//pass through comments
 char ar[1000];
 int comments = 0;
 while (pass == '#'){
@@ -58,8 +59,7 @@ while(pass != ' '){
   width[iterator++] = pass;
   pass = fgetc(fhin);
 }
-
-
+//scan width for use later
 int iwidth = atoi(width);
 sscanf(width, "%d", &iwidth);
 
@@ -70,6 +70,7 @@ while(pass != '\n'){
   height[iterator++] = pass;
   pass = fgetc(fhin);
 }
+//scan height for use later
 int iheight = atoi(height);
 sscanf(height, "%d", &iheight);
 
@@ -98,7 +99,7 @@ int counter = 0; // determine pos
 int line_num = 3 + comments; // determine line number program is on
 while(line_num != 0) {
   if (pass == '\n'){
-    line_num--;
+    line_num--; // decrement until header is read
   }
 
   hbuff[counter++] = pass; //increment position
@@ -109,47 +110,56 @@ hbuff[1] = *argv[1];
 fprintf(stdout, "%s\n", hbuff); //print out header
 ungetc(pass, fhin);
 
-//Reading pixel data
+//Reading pixel data -------------------------------
 Pixel img_arr[iheight][iwidth];
 if (strcmp("P3", m_n) == 0){
+  // iterate through pixel data
   for(int rows = 0; rows < iheight; rows++){
+
     for(int cols = 0; cols < iwidth; cols++){
+      // create char arrays to hold pixel data
       char red[4] = {'\0'};
       char grn[4] = {'\0'};
       char blu[4] = {'\0'};
+
       pass = fgetc(fhin);
-      for(int x = 0; x < 3; x++){
+
+      for(int x = 0; x < 3; x++){ // puts red pixel data in red array
         if (pass == ' ' || pass == '\n'){break;}
         red[x] = pass;
         pass = fgetc(fhin);
       }
-      while (pass == ' ' || pass == '\n') {pass = fgetc(fhin);}
 
-      for(int x = 0; x < 3; x++){
+      while (pass == ' ' || pass == '\n') {pass = fgetc(fhin);} // no matter the whitespace moves to next data cluster
+
+      for(int x = 0; x < 3; x++){ // puts green pixel data in grn array
         if (pass == ' ' || pass == '\n'){break;}
         grn[x] = pass;
         pass = fgetc(fhin);
       }
       while (pass == ' ' || pass == '\n') {pass = fgetc(fhin);}
 
-      for(int x = 0; x < 3; x++){
+      for(int x = 0; x < 3; x++){ // puts blue pixel data in blu array
         if (pass == ' ' || pass == '\n'){break;}
         blu[x] = pass;
         pass = fgetc(fhin);
       }
       while (pass == ' ' || pass == '\n') {pass = fgetc(fhin);}
 
-      ungetc(pass, fhin);
+      ungetc(pass, fhin); // back 1
 
+      //ascii to int and store them in the img_arr
       img_arr[rows][cols].red = atoi(red);
       img_arr[rows][cols].grn = atoi(grn);
       img_arr[rows][cols].blu = atoi(blu);
 
     }
   }
-} else{
+} else{ //If P6
+  //iterate through px data
   for(int rows = 0; rows < iheight; rows++){
     for(int cols = 0; cols < iwidth; cols++){
+      //store px data in arrays of len 1
       int rpx[1];
       int gpx[1];
       int bpx[1];
@@ -163,31 +173,35 @@ if (strcmp("P3", m_n) == 0){
   }
 }
 
-//Writing the pixels to output file
+//Writing the pixels to output file----------------------------------
 FILE* out = fopen(argv[3], "w");
-fprintf(out, "%s", hbuff);
-if(*argv[1] == '3'){
+fprintf(out, "%s", hbuff); //print out the header
+if(*argv[1] == '3'){ //If P3
   for(int rows = 0; rows < iheight; rows++){
     for(int cols = 0; cols < iwidth; cols++){
 
+//make the pixels signed instead of unsigned
       int r = img_arr[rows][cols].red;
       int g = img_arr[rows][cols].grn;
       int b = img_arr[rows][cols].blu;
-      fprintf(out, " %i %i %i \n", r, g, b);
+      fprintf(out, " %i %i %i \n", r, g, b); // print out the pixels in P3 format
     }
   }
-} else{
+} else{ //if P6
+  //iterate through pixels
   for (int rows = 0; rows < iheight; rows++){
     for (int cols = 0; cols < iwidth; cols++){
       int rpx[1] = {img_arr[rows][cols].red};
       int gpx[1] = {img_arr[rows][cols].grn};
       int bpx[1] = {img_arr[rows][cols].blu};
+      // write out pixels in P6
       fwrite(rpx, 1, 1, out);
       fwrite(gpx, 1, 1, out);
       fwrite(bpx, 1, 1, out);
     }
   }
 }
+//close the files and flush for good measure
 fclose(fhin);
 fclose(out);
 fflush(stdout);
